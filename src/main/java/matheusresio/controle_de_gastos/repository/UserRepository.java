@@ -12,4 +12,6 @@ import matheusresio.controle_de_gastos.model.User;
 public interface UserRepository extends JpaRepository<User, UUID>{
 
 	Optional<User> findByEmail(String email);
+
+	Optional<User> findByUsername(String username);
 }

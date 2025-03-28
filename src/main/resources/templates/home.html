@@ -13,124 +13,136 @@
 <link rel="stylesheet" th:href="@{/css/home.css}">
 </head>
 <body>
-	<div th:replace="~{fragments/navbar :: navbar}">
-	</div>
-	
+	<div th:replace="~{fragments/navbar :: navbar}"></div>
+
 	<div class="home-section">
 		<div class="home-section-wellcome">
-			<h2 class="home-section-wellcome-title">Olá, <span th:text="user.username"></span></h2>
+			<h2 class="home-section-wellcome-title">
+				Olá, <span th:text="${user.username}"></span>
+			</h2>
 			<p>Confira o resultado de receitas e gastos da útima semana</p>
 		</div>
 		<div class="home-section-cashflow">
 			<div class="home-section-cashflow-indicators">
-				<div class="row">
-					<div class="col m-3 p-3">
-						<div class="row">
+				<div class="main-row revenue">
+					<div class="main-col">
+						<div class="sec-row">
 							<p class="text-success-emphasis">Receita Total</p>
 						</div>
-						<div class="row">
-							<p class="text-success"><span th:text="${cashFlow.totalRevenue}"></span></p>
+						<div class="sec-row">
+							<p class="text-success">
+								<span th:text="${cashFlow.totalRevenue}"></span>
+							</p>
 						</div>
 					</div>
-					
-					<div class="col m-3 p-3">
-						<div class="row">
+
+					<div class="main-col">
+						<div class="sec-row">
 							<p class="text-success-emphasis">Maior Receita</p>
 						</div>
-						<div class="row">
-							<p class="text-success"><span th:text="${cashFlow.biggestRevenue}"></span></p>
+						<div class="sec-row">
+							<p class="text-success">
+								<span th:text="${cashFlow.biggestRevenue}"></span>
+							</p>
 						</div>
 					</div>
-					
-					<div class="col m-3 p-3">
-						<div class="row">
+
+					<div class="main-col">
+						<div class="sec-row">
 							<p class="text-success-emphasis">Média de Receita</p>
 						</div>
-						<div class="row">
-							<p class="text-success"><span th:text="${cashFlow.averageRevenue}"></span></p>
-						</div>
-					</div>
-					
-					<div class="col m-3 p-3">
-						<div class="row">
-							<p>Resultado</p>
-						</div>
-						<div class="row">
-							<p><span th:text="${cashFlow.result}"
-									 th:class="${cashFlow.result >= 0 ? 'text-success' : 'text-danger'}"></span></p>
+						<div class="sec-row">
+							<p class="text-success">
+								<span th:text="${cashFlow.averageRevenue}"></span>
+							</p>
 						</div>
 					</div>
 				</div>
-				
-				
-				<div class="row">
-					<div class="col m-3 p-3">
-						<div class="row">
+
+
+				<div class="bot-main-row expense">
+					<div class="main-col">
+						<div class="sec-row">
 							<p class="text-success-emphasis">Despesa Total</p>
 						</div>
-						<div class="row">
-							<p class="text-success"><span th:text="${cashFlow.totalExpense}"></span></p>
+						<div class="sec-row">
+							<p class="text-danger">
+								<span th:text="${cashFlow.totalExpense}"></span>
+							</p>
 						</div>
 					</div>
-					
-					<div class="col m-3 p-3">
-						<div class="row">
+
+					<div class="main-col">
+						<div class="sec-row">
 							<p class="text-success-emphasis">Maior Despesa</p>
 						</div>
-						<div class="row">
-							<p class="text-success"><span th:text="${cashFlow.biggestExpense}"></span></p>
+						<div class="sec-row">
+							<p class="text-danger">
+								<span th:text="${cashFlow.biggestExpense}"></span>
+							</p>
 						</div>
 					</div>
-					
-					<div class="col m-3 p-3">
-						<div class="row">
+
+					<div class="main-col">
+						<div class="sec-row">
 							<p class="text-success-emphasis">Média de Despesa</p>
 						</div>
-						<div class="row">
-							<p class="text-success"><span th:text="${cashFlow.averageExpense}"></span></p>
+						<div class="sec-row">
+							<p class="text-danger">
+								<span th:text="${cashFlow.averageExpense}"></span>
+							</p>
 						</div>
 					</div>
 				</div>
 			</div>
-			
-			<div class="home-section-cashflow-transactions">
-				<div class="transaction row" th:each="transaction : ${cashFlow.transactions}" th:id="'transactionId' + ${transaction.transactionId}">
-					<div class="col m-3 p-3">
-						<p><span th:text="${transaction.transactionType == 'REVENUE' ? 'RECEITA' : 'DESPESA'}"
-								 th:class="${transaction.transactionType == 'REVENUE' ? 'text-success' : 'text-danger'}"></span></p>
-					</div>
-					
-					<div class="col m-3 p-3">
-						<div class="row">
-							<p class="text-success-emphasis">Valor</p>
-						</div>
-						<div class="row">
-							<p><span th:text="${transaction.value}"
-								 th:class="${transaction.transactionType == 'REVENUE' ? 'text-success' : 'text-danger'}"></span></p>
-						</div>
-					</div>
-					
-					<div class="col m-3 p-3">
-						<div class="row">
-							<p class="text-success-emphasis">Descrição</p>
-						</div>
-						<div class="row">
-							<p><span th:text="${transaction.description}"
-								 th:class="${transaction.transactionType == 'REVENUE' ? 'text-success' : 'text-danger'}"></span></p>
-						</div>
-					</div>
-					
-					<div class="col m-3 p-3">
-						<div class="row">
-							<p class="text-success-emphasis">Data</p>
-						</div>
-						<div class="row">
-							<p><span th:text="${transaction.date}"></span></p>
-						</div>
-					</div>
+
+			<div class="result">
+				<div class="sec-row">
+					<p>Resultado</p>
 				</div>
+				<div class="sec-row">
+					<p>
+						<span th:text="${cashFlow.result}"
+							th:class="${cashFlow.result >= 0 ? 'text-success' : 'text-danger'}"></span>
+					</p>
+				</div>
+			</div>
+
+			<div class="home-section-cashflow-transactions">
+				<table class="transactions-table">
+					<thead>
+						<tr>
+							<th>Tipo da Transação</th>
+							<th>Valor</th>
+							<th>Descrição</th>
+							<th>Data</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="transaction : ${cashFlow.transactions}"
+							th:id="'transactionId' + ${transaction.transactionId}"
+							th:class="'transaction ' + ${transaction.transactionType.name == 'REVENUE' ? 'text-success revenue' : 'text-danger expense'}"
+							>
+							<td><span
+								th:text="${transaction.transactionType.name == 'REVENUE' ? 'RECEITA' : 'DESPESA'}"
+								th:class="${transaction.transactionType.name == 'REVENUE' ? 'text-success' : 'text-danger'}"></span>
+
+							</td>
+							<td><span th:text="${transaction.value}"
+								th:class="${transaction.transactionType.name == 'REVENUE' ? 'text-success' : 'text-danger'}"></span>
+							</td>
+							<td><span th:text="${transaction.description}"
+								th:class="${transaction.transactionType.name == 'REVENUE' ? 'text-success' : 'text-danger'}"></span>
+							</td>
+							<td><span
+								th:text="${#dates.format(transaction.date, 'dd/MM/yyyy')}"></span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
+	</div>
 	</div>
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

@@ -1,6 +1,7 @@
 package matheusresio.controle_de_gastos.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -100,7 +101,7 @@ public class CashFlowService {
 		
 		if(size == 0) return BigDecimal.ZERO;
 		
-		BigDecimal average = totalTransactionValue.divide(new BigDecimal(size)); 
+		BigDecimal average = totalTransactionValue.divide(new BigDecimal(size), 2, RoundingMode.HALF_UP); 
 
 		return average;
 	}
