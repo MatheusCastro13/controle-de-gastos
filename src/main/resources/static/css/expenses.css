@@ -1,0 +1,53 @@
+.expenses-section {
+	margin-top: 80px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.expenses-section-table {
+	width: 60%;
+	margin: 20px 0;
+}
+
+.expenses-table {
+	width: 100%;
+	border: 1px solid gainsboro;
+}
+
+.expenses-table-head, expenses-table-body {
+	width: 100%;
+	border: 1px solid gainsboro;
+	border-collapse: collapse;
+}
+
+.expenses-table-head tr th {
+	padding: 5px 0px 5px 5px;
+	border: 1px solid darkgray;
+	border-collapse: collapse;
+	background-color: gainsboro;
+}
+
+.expenses-table-body tr td {
+	padding: 5px 0px 5px 5px;
+	border: 1px solid darkgray;
+	border-collapse: collapse;
+}
+
+.newExpenseButton {
+	box-sizing: border-box;
+	width: 18%;
+	margin: 10px 0;
+}
+
+.width-45 {
+	width: 45%;
+}
+
+.width-15 {
+	width: 15%;
+}
+
+.width-25 {
+	width: 25%;
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary navbar-custom bg-body-tertiary-custom fixed-top"
+         th:fragment="navbar" style="margin-bottom: 60px">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/home}">
+                Controle de Gastos
+            </a>
+            <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-link" aria-current="page" th:href="@{/home}">Início</a>
+                    <a class="nav-link" th:href="@{/revenues}">Receitas</a>
+                    <a class="nav-link" th:href="@{/expenses}">Despesas</a>
+                    <a class="nav-link" th:href="@{/adm}" sec:authorize="hasRole('ADMIN')">Administrativo</a>
+                    <a class="nav-link" th:href="@{/users/{id}(id=${user.id})}">Perfil</a>
+                    <form id="logout-form" th:action="@{/logout}" method="post" style="display: none;">
+                        <input type="hidden"/>
+                    </form>
+                    <a class="nav-link" href="#" onclick="document.getElementById('logout-form').submit();">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

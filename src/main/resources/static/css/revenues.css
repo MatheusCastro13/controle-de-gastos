@@ -1,0 +1,53 @@
+.revenues-section {
+	margin-top: 80px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.revenues-section-table {
+	width: 60%;
+	margin: 20px 0;
+}
+
+.revenues-table {
+	width: 100%;
+	border: 1px solid gainsboro;
+}
+
+.revenues-table-head, revenues-table-body {
+	width: 100%;
+	border: 1px solid gainsboro;
+	border-collapse: collapse;
+}
+
+.revenues-table-head tr th {
+	padding: 5px 0px 5px 5px;
+	border: 1px solid darkgray;
+	border-collapse: collapse;
+	background-color: gainsboro;
+}
+
+.revenues-table-body tr td {
+	padding: 5px 0px 5px 5px;
+	border: 1px solid darkgray;
+	border-collapse: collapse;
+}
+
+.newRevenueButton {
+	box-sizing: border-box;
+	width: 15%;
+	margin: 10px 0;
+}
+
+.width-45 {
+	width: 45%;
+}
+
+.width-15 {
+	width: 15%;
+}
+
+width-25 {
+	width: 25%;
+}

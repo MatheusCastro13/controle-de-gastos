@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+	crossorigin="anonymous">
+<link rel="stylesheet" th:href="@{/css/expenses.css}">
+</head>
+<body>
+	<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+	<div class="expenses-section">
+
+
+		<div class="modal fade" id="newExpense" data-bs-backdrop="static"
+			data-bs-keyboard="false" tabindex="-1"
+			aria-labelledby="newExpenseLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="newExpenseLabel">Nova
+							Despesa</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" th:name="${_csrf.parameterName}"
+							th:value="${_csrf.token}" id="csrfToken" />
+
+						<div class="mb-3">
+							<label for="newDescription" class="form-label">Descrição</label>
+							<input type="text" class="form-control" id="newDescription">
+						</div>
+
+						<div class="mb-3">
+							<label for="newValue" class="form-label">Valor</label> <input
+								type="number" class="form-control" id="newValue"
+								placeholder="R$" step="any">
+						</div>
+
+						<div class="mb-3">
+							<label for="newDate" class="form-label">Data da Despesa</label> <input
+								type="date" class="form-control" id="newDate">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary"
+							onclick="saveNewExpense()">Salvar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="expenses-section-table">
+			<button type="button" class="btn btn-primary newExpenseButton"
+				data-bs-toggle="modal" data-bs-target="#newExpense">Nova
+				Despesa</button>
+			<table class="expenses-table" id="expenses-table">
+				<thead class="expenses-table-head">
+					<tr>
+						<th class="width-15">Data</th>
+						<th class="width-45">Descrição</th>
+						<th>Valor</th>
+						<th class="width-25">Ações</th>
+					</tr>
+				</thead>
+				<tbody class="expenses-table-body">
+					<tr th:each="expense : ${expenses}">
+						<td th:text="${#dates.format(expense.expenseDate, 'dd/MM/yyyy')}"></td>
+						<td th:text="${expense.description}"></td>
+						<td th:text="${expense.expenseValue}"></td>
+						<td>
+							<button th:id="'editExpense' + ${expense.id}" type="button"
+								onclick="openEditExpenseModal(this)" class="btn btn-warning"
+								th:data-edit-expense-id="${expense.id}">Editar</button>
+							<button th:id="'deleteExpense' + ${expense.id}" type="button"
+								onclick="openDeleteExpenseModal(this)" class="btn btn-danger"
+								th:data-delete-expense-id="${expense.id}">Excluir</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="modal fade" id="editExpenseModal"
+			data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+			aria-labelledby="editExpenseModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="editExpenseModalLabel">Editar
+							Despesa</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" th:name="${_csrf.parameterName}"
+							th:value="${_csrf.token}" id="csrfToken" />
+
+						<div class="mb-3">
+							<label for="editDescription" class="form-label">Descrição</label>
+							<input type="text" class="form-control" id="editDescription">
+						</div>
+
+						<div class="mb-3">
+							<label for="editValue" class="form-label">Valor</label> <input
+								type="number" class="form-control" id="editValue"
+								placeholder="R$" step="any">
+						</div>
+
+						<div class="mb-3">
+							<label for="editDate" class="form-label">Data da Receita</label>
+							<input type="date" class="form-control" id="editDate">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary"
+							id="editExpenseButton" onclick="saveExpenseUpdates(this)">Salvar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="deleteExpenseModal"
+			data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+			aria-labelledby="deleteExpenseModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="deleteExpenseModalLabel">Tem
+							certeza em excluir a despesa?</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<div class="mb-3">
+							<label for="deleteDescription" class="form-label">Descrição</label>
+							<input type="text" class="form-control" id="deleteDescription"
+								readonly>
+						</div>
+
+						<div class="mb-3">
+							<label for="deleteValue" class="form-label">Valor</label> <input
+								type="number" class="form-control" id="deleteValue"
+								placeholder="R$" step="any" readonly>
+						</div>
+
+						<div class="mb-3">
+							<label for="deleteDate" class="form-label">Data da
+								Receita</label> <input type="date" class="form-control" id="deleteDate"
+								readonly>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">Não</button>
+						<button type="button" class="btn btn-primary"
+							id="deleteExpenseButton" onclick="deleteExpense(this)">Sim</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+		crossorigin="anonymous"></script>
+	<script th:src="@{/js/expenses.js}"></script>
+</body>
+</html>
