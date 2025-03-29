@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.persistence.EntityNotFoundException;
 import matheusresio.controle_de_gastos.exceptions.CredentialsAlreadyUsedException;
+import matheusresio.controle_de_gastos.exceptions.SamePasswordException;
+import matheusresio.controle_de_gastos.exceptions.WrongPasswordException;
 import matheusresio.controle_de_gastos.model.User;
+import matheusresio.controle_de_gastos.model.dto.PasswordChange;
 import matheusresio.controle_de_gastos.model.dto.UserRegister;
 import matheusresio.controle_de_gastos.service.AuthenticationService;
 import matheusresio.controle_de_gastos.service.UserService;
@@ -46,12 +49,15 @@ public class UserController {
 			return ResponseEntity.ok().build();
 		}
 		catch(CredentialsAlreadyUsedException e) {
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		}
 		catch(EntityNotFoundException e) {
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		catch(Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -61,13 +67,35 @@ public class UserController {
 		User user = authenticationService.getUserAuthenticated();
 		
 		try {
-			userService.userProfileCredentials(user, id);
+			userService.verifyPermissions(user, id);
 			model.addAttribute("user", user);
 			return "user-profile";
 		}
 		catch(AccessDeniedException e) {
 			e.printStackTrace();
 			return "" + HttpStatus.UNAUTHORIZED;
+		}
+	}
+	
+	@PostMapping("/change-password/{id}")
+	public ResponseEntity<?> changePassword(@RequestBody PasswordChange password, @PathVariable UUID id, Model model){
+		User user = authenticationService.getUserAuthenticated();
+		try {
+			userService.changePassword(id, user, password);
+			return ResponseEntity.ok().build();
+		}
+		catch(SamePasswordException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nova senha igual a anterior");
+		}
+		
+		catch(WrongPasswordException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A senha atual não confere");
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 }
