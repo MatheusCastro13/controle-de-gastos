@@ -3,7 +3,6 @@ package matheusresio.controle_de_gastos.controller;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,10 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import jakarta.persistence.EntityNotFoundException;
-import matheusresio.controle_de_gastos.exceptions.CredentialsAlreadyUsedException;
-import matheusresio.controle_de_gastos.exceptions.SamePasswordException;
-import matheusresio.controle_de_gastos.exceptions.WrongPasswordException;
 import matheusresio.controle_de_gastos.model.User;
 import matheusresio.controle_de_gastos.model.dto.PasswordChange;
 import matheusresio.controle_de_gastos.model.dto.UserRegister;
@@ -48,27 +43,17 @@ public class UserController {
 
 	@PostMapping("/register")
 	public ResponseEntity<Void> registerUser(@RequestBody UserRegister userRegister) {
-		try {
-			userService.save(userRegister);
-			return ResponseEntity.ok().build();
-		} catch (CredentialsAlreadyUsedException e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
-		} catch (EntityNotFoundException e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
+
+		userService.save(userRegister);
+		return ResponseEntity.ok().build();
 	}
 
 	@GetMapping("/{id}")
 	public String getUserById(@PathVariable UUID id, Model model) {
 		User userAuthenticated = authenticationService.getUserAuthenticated();
-		
+
 		authorizationService.verifyUserAccess(userAuthenticated, id);
-		
+
 		User user = userService.findById(id);
 		model.addAttribute("user", user);
 		return "user-profile";
@@ -78,27 +63,16 @@ public class UserController {
 	@PostMapping("/change-password/{id}")
 	public ResponseEntity<?> changePassword(@RequestBody PasswordChange password, @PathVariable UUID id, Model model) {
 		User user = authenticationService.getUserAuthenticated();
-		try {
-			userService.changePassword(id, user, password);
-			return ResponseEntity.ok().build();
-		} catch (SamePasswordException e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nova senha igual a anterior");
-		}
 
-		catch (WrongPasswordException e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A senha atual não confere");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
+		userService.changePassword(id, user, password);
+		return ResponseEntity.ok().build();
+
 	}
 
 	@PostMapping("/update/{id}")
 	public ResponseEntity<Void> updateUserInfos(@PathVariable UUID id, @RequestBody UserUpdateDto userDto) {
-	    User user = authenticationService.getUserAuthenticated();
-	    userService.update(id, user, userDto);
-	    return ResponseEntity.ok().build();
+		User user = authenticationService.getUserAuthenticated();
+		userService.update(id, user, userDto);
+		return ResponseEntity.ok().build();
 	}
 }

@@ -39,24 +39,31 @@ async function updatePassword(button) {
 	const csrfToken = document.getElementById('csrfToken').value;
 	const url = `/users/change-password/${userId}`;
 
-	const request = await fetch(url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-CSRF-TOKEN': csrfToken
-		},
-		body: JSON.stringify(data)
-	})
+	try {
+		const request = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': csrfToken
+			},
+			body: JSON.stringify(data)
+		})
 
-	if (!request.ok) {
-		throw new Error('Erro ao salvar nova senha');
+		if (!request.ok) {
+			const errorText = await request.text();
+			throw new Error(errorText || 'Erro ao alterar senha');
+		}
+
+		const modal = bootstrap.Modal.getInstance(document.getElementById('updatePassword'));
+		modal.hide();
+
+		alert('Senha alterada com sucesso!');
+		window.location.href = `/users/${userId}`;
 	}
-
-	const modal = bootstrap.Modal.getInstance(document.getElementById('updatePassword'));
-	modal.hide();
-
-	alert('Senha alterada com sucesso!');
-	window.location.href = `/users/${userId}`;
+	catch (error) {
+		alert('Não foi possível alterar os dados');
+		window.location.href = `/users/${userId}`;
+	}
 }
 
 function validNewPassword() {
@@ -93,25 +100,27 @@ async function updateUserInfos(button) {
 		email: email
 	}
 
-	try{
+	try {
 		const request = await fetch(url, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRF-TOKEN': csrfToken
-				},
-				body: JSON.stringify(data)
-			})
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRF-TOKEN': csrfToken
+			},
+			body: JSON.stringify(data)
+		})
 
-			if (!request.ok) {
-				throw new Error('Erro ao alterar dados senha');
-			}
+		if (!request.ok) {
+			const errorText = await request.text();
+			throw new Error(errorText || 'Erro ao alterar dados');
+		}
 
-			alert('Dados alterados com sucesso!');
-			window.location.href = `/users/${userId}`;
+		alert('Dados alterados com sucesso!');
+		window.location.href = `/users/${userId}`;
 	}
-	catch(error){
-		alert('Não foi possível alterar os dados')
+	catch (error) {
+		alert('Não foi possível alterar os dados');
+		window.location.href = `/users/${userId}`;
 	}
 }
 

@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,13 +48,12 @@ public class UserService {
 
 	@Transactional
 	public void save(UserRegister userRegister) throws CredentialsAlreadyUsedException {
+		
+		checkCredentialsAvailability(null, userRegister.username(), userRegister.email());
+		
 		Role role = roleRepository.findByName("ROLE_USER")
 				.orElseThrow(() -> new EntityNotFoundException("Role não encontrada"));
-
-		if (!validCredentials(userRegister.username(), userRegister.email())) {
-			throw new CredentialsAlreadyUsedException("Username ou email já utilizado");
-		}
-
+		
 		User user = new User();
 		user.setUsername(userRegister.username());
 		user.setEmail(userRegister.email());
@@ -67,14 +65,10 @@ public class UserService {
 
 	@Transactional
 	public void save(UserRegisterAdm userDto) throws CredentialsAlreadyUsedException {
-		System.out.println("userDto.role() = " + userDto.role());
+		checkCredentialsAvailability(null, userDto.username(), userDto.email());
+
 		Role role = roleRepository.findByName("ROLE_" + userDto.role())
 				.orElseThrow(() -> new EntityNotFoundException("Role não encontrada"));
-
-		if (!validCredentials(userDto.username(), userDto.email())) {
-			System.out.println("credenciais invalidas");
-			throw new CredentialsAlreadyUsedException("Username ou email já utilizado");
-		}
 
 		User user = new User();
 		user.setUsername(userDto.username());
@@ -85,33 +79,10 @@ public class UserService {
 		userRepository.save(user);
 	}
 	
-	private boolean validCredentials(String username, String email) {
-		Optional<User> userByUsername = userRepository.findByUsername(username);
-		Optional<User> userByEmail = userRepository.findByEmail(email);
-
-		if (userByEmail.isPresent() || userByUsername.isPresent()) {
-			return false;
-		}
-
-		return true;
-	}
-
-	public void verifyPermissions(User user, UUID id) throws AccessDeniedException, EntityNotFoundException {
-		if (!verifyIdExists(id)) {
-			throw new EntityNotFoundException("User com id: " + id + "não foi encontrado");
-		}
-
-		if (user.getRole().getName().equals("ROLE_USER")) {
-			if (!verifyUserAuthenticatedId(id, user)) {
-				throw new AccessDeniedException("Você não tem permissão para ver os dados desse usuário");
-			}
-		}
-
-	}
 
 	@Transactional
 	public void changePassword(UUID id, User user, PasswordChange password) throws SamePasswordException, WrongPasswordException {
-		this.verifyPermissions(user, id);
+		authorizationService.verifyUserAccess(user, id);
 		this.verifyPassword(user, password);
 		user.setPassword(passwordEncoder.encode(password.getNewPassword()));
 
@@ -127,17 +98,8 @@ public class UserService {
 		}
 	}
 
-	private boolean verifyUserAuthenticatedId(UUID id, User user) {
-		return user.getId().equals(id);
-	}
-
-	private boolean verifyIdExists(UUID id) {
-		return userRepository.findById(id).isPresent();
-
-	}
-
 	@Transactional
-	public void update(UUID id, User user, UserUpdateDto userDto) {
+	public void update(UUID id, User user, UserUpdateDto userDto) throws SameCredentialsException, CredentialsAlreadyUsedException{
 		authorizationService.verifyUserAccess(user, id);
 		checkSameCredentials(user, userDto.getUsername(), userDto.getEmail());
 	    checkCredentialsAvailability(user, userDto.getUsername(), userDto.getEmail());
@@ -152,7 +114,7 @@ public class UserService {
 	    }
 	}
 
-	private void checkCredentialsAvailability(User user, String username, String email){
+	private void checkCredentialsAvailability(User user, String username, String email) throws CredentialsAlreadyUsedException{
 	    Optional<User> userByEmail = userRepository.findByEmail(email);
 	    Optional<User> userByUsername = userRepository.findByUsername(username);
 

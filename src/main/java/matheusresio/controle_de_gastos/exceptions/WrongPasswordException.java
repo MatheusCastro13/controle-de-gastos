@@ -1,6 +1,6 @@
 package matheusresio.controle_de_gastos.exceptions;
 
-public class WrongPasswordException extends Exception {
+public class WrongPasswordException extends RuntimeException {
 
 	/**
 	 * 
