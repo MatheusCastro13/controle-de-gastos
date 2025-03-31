@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import jakarta.persistence.EntityNotFoundException;
+import matheusresio.controle_de_gastos.exceptions.CredentialsAlreadyUsedException;
 
 @ControllerAdvice
 public class ExcpetionHandlerController {
@@ -20,5 +21,13 @@ public class ExcpetionHandlerController {
 	        
 	        model.addAttribute("error", ex.getMessage()); 
 	        return "access-denied"; 
+	    }
+	    
+	    @ExceptionHandler(CredentialsAlreadyUsedException.class)
+	    public String handleCredentialsAlreadyUsed(Exception ex, Model model) { 
+	        logger.error("Um usuário registrado já possui uma dessas credenciais: ", ex);
+	        
+	        model.addAttribute("error", ex.getMessage()); 
+	        return "credentials-unavailable"; 
 	    }
 }

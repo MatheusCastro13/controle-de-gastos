@@ -29,13 +29,16 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
 	private final BCryptPasswordEncoder passwordEncoder;
+	private final AuthorizationService authorizationService;
+	
 
 	@Autowired
 	public UserService(UserRepository userRepository, RoleRepository roleRepository,
-			BCryptPasswordEncoder passwordEncoder) {
+			BCryptPasswordEncoder passwordEncoder, AuthorizationService authorizationService) {
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.authorizationService = authorizationService;
 	}
 
 	public Optional<User> findByEmail(String email) {
@@ -80,15 +83,6 @@ public class UserService {
 		user.setRole(role);
 		System.out.println("user a ser salvo: " + user);
 		userRepository.save(user);
-	}
-
-	private void verifyCredentials(String username, String email) throws CredentialsAlreadyUsedException{
-		Optional<User> userByUsername = userRepository.findByUsername(username);
-		Optional<User> userByEmail = userRepository.findByEmail(email);
-
-		if (userByEmail.isPresent() || userByUsername.isPresent()) {
-			throw new CredentialsAlreadyUsedException("O username ou email já esta sendo utilizado por outro usuario");
-		}
 	}
 	
 	private boolean validCredentials(String username, String email) {
@@ -138,38 +132,39 @@ public class UserService {
 	}
 
 	private boolean verifyIdExists(UUID id) {
-		return !userRepository.findById(id).isPresent();
+		return userRepository.findById(id).isPresent();
 
 	}
 
 	@Transactional
-	public void update(UUID id, User user, UserUpdateDto userDto) throws CredentialsAlreadyUsedException, AccessDeniedException, SameCredentialsException {
-		this.verifyPermissions(user, id);
-		this.verifyUserIsUpdateble(user, userDto.getUsername(), userDto.getEmail());
+	public void update(UUID id, User user, UserUpdateDto userDto) {
+		authorizationService.verifyUserAccess(user, id);
+		checkSameCredentials(user, userDto.getUsername(), userDto.getEmail());
+	    checkCredentialsAvailability(user, userDto.getUsername(), userDto.getEmail());
+	    
 		user.setUsername(userDto.getUsername());
 		user.setEmail(userDto.getEmail());
 	}
 
-	private void verifyUserIsUpdateble(User user, String username, String email) throws SameCredentialsException, CredentialsAlreadyUsedException {
-		if(user.getUsername().equals(username) && user.getEmail().equals(email)) {
-			throw new SameCredentialsException("Não é possível atualizar com os mesmos dados");
-		}
-		
-		Optional<User> userByUsername = userRepository.findByUsername(username);
-		Optional<User> userByEmail = userRepository.findByEmail(email);
-
-		if (userByEmail.isPresent()) {
-			if(!userByEmail.get().equals(user)) {
-				throw new CredentialsAlreadyUsedException("O email já esta sendo utilizado por outro usuario");
-			}
-		}
-		
-		if (userByUsername.isPresent()) {
-			if(!userByUsername.get().equals(user)) {
-				throw new CredentialsAlreadyUsedException("O username já esta sendo utilizado por outro usuario");
-			}
-		}
+	private void checkSameCredentials(User user, String username, String email){
+	    if(user.getUsername().equals(username) && user.getEmail().equals(email)) {
+	        throw new SameCredentialsException("Não é possível atualizar com os mesmos dados");
+	    }
 	}
+
+	private void checkCredentialsAvailability(User user, String username, String email){
+	    Optional<User> userByEmail = userRepository.findByEmail(email);
+	    Optional<User> userByUsername = userRepository.findByUsername(username);
+
+	    if (userByEmail.isPresent() && !userByEmail.get().equals(user)) {
+	        throw new CredentialsAlreadyUsedException("O email já está sendo utilizado por outro usuário");
+	    }
+
+	    if (userByUsername.isPresent() && !userByUsername.get().equals(user)) {
+	        throw new CredentialsAlreadyUsedException("O username já está sendo utilizado por outro usuário");
+	    }
+	}
+
 
 	public User findById(UUID id) {
 		return userRepository.findById(id).get();

@@ -1,6 +1,6 @@
 package matheusresio.controle_de_gastos.exceptions;
 
-public class CredentialsAlreadyUsedException extends Exception {
+public class CredentialsAlreadyUsedException extends RuntimeException {
 
 	/**
 	 * 

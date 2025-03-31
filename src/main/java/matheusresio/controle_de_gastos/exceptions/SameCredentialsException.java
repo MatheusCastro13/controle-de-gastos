@@ -1,6 +1,6 @@
 package matheusresio.controle_de_gastos.exceptions;
 
-public class SameCredentialsException extends Exception {
+public class SameCredentialsException extends RuntimeException {
 
 	/**
 	 * 
