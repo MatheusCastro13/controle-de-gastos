@@ -10,40 +10,45 @@
 	rel="stylesheet"
 	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
 	crossorigin="anonymous">
-<link rel="stylesheet" th:href="@{/css/login.css}">
+<link rel="stylesheet" th:href="@{/css/user-profile.css}">
 </head>
 <body>
+	<div th:replace="~{fragments/navbar :: navbar}"></div>
 	<div class="user-profile-section">
 		<div class="user-profile-infos">
-			<div class="mt-1" id="user-id">
+			<div class="mt-1 info" id="user-id">
 				<p>
-					Id: <br> <span th:text="${user.id}"></span>
+					<strong>Id: </strong><br> <span th:text="${user.id}"></span>
 				</p>
 			</div>
 
-			<div class="mt-1">
-				<label class="form-label" for="usernameInput">Username</label> <input
-					class="form-control" type="text" id="usernameInput"
+			<div class="mt-1 info">
+				<label class="form-label" for="usernameInput"><strong>Username</strong></label>
+				<input class="form-control" type="text" id="usernameInput"
 					th:value="${user.username}">
 			</div>
 
-			<div class="mt-1">
-				<label class="form-label" for="emailInput">Email</label> <input
-					class="form-control" type="email" id="emailInput"
+			<div class="mt-1 info">
+				<label class="form-label" for="emailInput"><strong>Email</strong></label>
+				<input class="form-control" type="email" id="emailInput"
 					th:value="${user.email}">
 			</div>
-			<div class="mt-1" id="user-id">
+			<div class="mt-1 info">
 				<p>
-					Role: <br> <span th:text="${user.role.name}"></span>
+					<strong>Role: </strong><br> <span th:text="${user.role.name}"></span>
 				</p>
 			</div>
 			<button type="button" class="btn btn-primary"
-				th:data-user-id="${user.id}" onclick="updateUserInfos(this)">Salvar</button>
+				id="updateUserInfosButton" th:data-user-id="${user.id}"
+				onclick="updateUserInfos(this)">Salvar</button>
 		</div>
 
 
-		<button type="button" class="btn btn-primary" data-bs-toggle="modal"
-			data-bs-target="#updatePassword">Trocar Senha</button>
+		<div class="change-password">
+			<button type="button" class="btn btn-primary"
+				id="updatePasswordButton" data-bs-toggle="modal"
+				data-bs-target="#updatePassword">Trocar Senha</button>
+		</div>
 
 		<div class="modal fade" id="updatePassword" data-bs-backdrop="static"
 			data-bs-keyboard="false" tabindex="-1"

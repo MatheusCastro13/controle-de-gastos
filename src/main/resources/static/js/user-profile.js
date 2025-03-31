@@ -76,7 +76,7 @@ function validPasswordInputs() {
 
 
 async function updateUserInfos(button) {
-	if (!validUserInputs) {
+	if (!validUserInputs()) {
 		alert('As informaçôes nao podem estar vazies');
 		return;
 	}
@@ -85,27 +85,40 @@ async function updateUserInfos(button) {
 	const csrfToken = document.getElementById('csrfToken').value;
 	const url = `/users/update/${userId}`;
 
+	const username = document.getElementById('usernameInput').value;
+	const email = document.getElementById('emailInput').value;
+
+	const data = {
+		username: username,
+		email: email
+	}
+
+	try{
+		const request = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-TOKEN': csrfToken
+				},
+				body: JSON.stringify(data)
+			})
+
+			if (!request.ok) {
+				throw new Error('Erro ao alterar dados senha');
+			}
+
+			alert('Dados alterados com sucesso!');
+			window.location.href = `/users/${userId}`;
+	}
+	catch(error){
+		alert('Não foi possível alterar os dados')
+	}
+}
+
+function validUserInputs() {
 	const usernameInput = document.getElementById('usernameInput').value;
 	const emailInput = document.getElementById('emailInput').value;
 
-	const data = {
-		usernameInput: usernameInput,
-		emailInput: emailInput
-	}
-
-	const request = await fetch(url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-CSRF-TOKEN': csrfToken
-		},
-		body: JSON.stringify(data)
-	})
-
-	if (!request.ok) {
-		throw new Error('Erro ao alterar dados senha');
-	}
-
-	alert('Dados alterados com sucesso!');
-	window.location.href = `/users/${userId}`;
+	return usernameInput.trim() !== '' && emailInput.trim() !== '';
 }
+

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import matheusresio.controle_de_gastos.exceptions.CredentialsAlreadyUsedException;
+import matheusresio.controle_de_gastos.exceptions.SameCredentialsException;
 import matheusresio.controle_de_gastos.exceptions.SamePasswordException;
 import matheusresio.controle_de_gastos.exceptions.WrongPasswordException;
 import matheusresio.controle_de_gastos.model.Role;
@@ -18,6 +19,7 @@ import matheusresio.controle_de_gastos.model.User;
 import matheusresio.controle_de_gastos.model.dto.PasswordChange;
 import matheusresio.controle_de_gastos.model.dto.UserRegister;
 import matheusresio.controle_de_gastos.model.dto.UserRegisterAdm;
+import matheusresio.controle_de_gastos.model.dto.UserUpdateDto;
 import matheusresio.controle_de_gastos.repository.RoleRepository;
 import matheusresio.controle_de_gastos.repository.UserRepository;
 
@@ -80,6 +82,15 @@ public class UserService {
 		userRepository.save(user);
 	}
 
+	private void verifyCredentials(String username, String email) throws CredentialsAlreadyUsedException{
+		Optional<User> userByUsername = userRepository.findByUsername(username);
+		Optional<User> userByEmail = userRepository.findByEmail(email);
+
+		if (userByEmail.isPresent() || userByUsername.isPresent()) {
+			throw new CredentialsAlreadyUsedException("O username ou email já esta sendo utilizado por outro usuario");
+		}
+	}
+	
 	private boolean validCredentials(String username, String email) {
 		Optional<User> userByUsername = userRepository.findByUsername(username);
 		Optional<User> userByEmail = userRepository.findByEmail(email);
@@ -123,14 +134,58 @@ public class UserService {
 	}
 
 	private boolean verifyUserAuthenticatedId(UUID id, User user) {
-		if (!user.getId().equals(id))
-			return false;
-
-		return true;
+		return user.getId().equals(id);
 	}
 
 	private boolean verifyIdExists(UUID id) {
-		return !userRepository.findById(id).isEmpty();
+		return !userRepository.findById(id).isPresent();
 
 	}
+
+	@Transactional
+	public void update(UUID id, User user, UserUpdateDto userDto) throws CredentialsAlreadyUsedException, AccessDeniedException, SameCredentialsException {
+		this.verifyPermissions(user, id);
+		this.verifyUserIsUpdateble(user, userDto.getUsername(), userDto.getEmail());
+		user.setUsername(userDto.getUsername());
+		user.setEmail(userDto.getEmail());
+	}
+
+	private void verifyUserIsUpdateble(User user, String username, String email) throws SameCredentialsException, CredentialsAlreadyUsedException {
+		if(user.getUsername().equals(username) && user.getEmail().equals(email)) {
+			throw new SameCredentialsException("Não é possível atualizar com os mesmos dados");
+		}
+		
+		Optional<User> userByUsername = userRepository.findByUsername(username);
+		Optional<User> userByEmail = userRepository.findByEmail(email);
+
+		if (userByEmail.isPresent()) {
+			if(!userByEmail.get().equals(user)) {
+				throw new CredentialsAlreadyUsedException("O email já esta sendo utilizado por outro usuario");
+			}
+		}
+		
+		if (userByUsername.isPresent()) {
+			if(!userByUsername.get().equals(user)) {
+				throw new CredentialsAlreadyUsedException("O username já esta sendo utilizado por outro usuario");
+			}
+		}
+	}
+
+	public User findById(UUID id) {
+		return userRepository.findById(id).get();
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
