@@ -41,6 +41,9 @@
 					<button type="button" class="btn btn-primary w-100"
 						onclick="saveNewUser()">Cadastrar</button>
 				</div>
+				<div>
+					<p class="mt-3">Já possui uma conta? <a href="/auth/login">logar</a></p>
+				</div>
 				<div th:if="${param.error}">
 					<p class="text-danger mt-3">Não foi possível cadastrar usuário.</p>
 				</div>

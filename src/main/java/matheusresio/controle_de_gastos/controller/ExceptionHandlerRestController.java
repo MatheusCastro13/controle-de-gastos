@@ -43,4 +43,10 @@ public class ExceptionHandlerRestController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
     
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIlligal(Exception ex) {
+        logger.error("argumento invalido: ", ex);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+    
 }
