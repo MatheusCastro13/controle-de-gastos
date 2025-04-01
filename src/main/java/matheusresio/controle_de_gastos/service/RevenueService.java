@@ -27,7 +27,7 @@ public class RevenueService {
 	}
 	
 	@Transactional
-	public void save(RevenueDto revenueDto, User user) {
+	public void save(RevenueDto revenueDto, User user) throws IllegalArgumentException{
 		Revenue revenue = new Revenue();
 		revenue.setDescription(revenueDto.getDescription());
 		revenue.setRevenueDate(revenueDto.getDate());
@@ -41,7 +41,7 @@ public class RevenueService {
 	}
 
 	@Transactional
-	public void update(Long id, RevenueDto revenueDto, User user) {
+	public void update(Long id, RevenueDto revenueDto, User user) throws EntityNotFoundException, IllegalArgumentException{
 		Revenue revenue = revenueRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Receita não encontrada"));
 		revenue.setDescription(revenueDto.getDescription());
@@ -51,7 +51,7 @@ public class RevenueService {
 	}
 
 	@Transactional
-	public void delete(Long id, User user) {
+	public void delete(Long id, User user) throws EntityNotFoundException{
 		Revenue revenue = revenueRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Receita não encontrada"));
 		user.removeRevenue(revenue);
@@ -62,7 +62,7 @@ public class RevenueService {
 				.orElseThrow(() -> new EntityNotFoundException("Receita não encontrada"));
 	}
 	
-	public RevenueResponse findResponseById(Long id) {
+	public RevenueResponse findResponseById(Long id) throws EntityNotFoundException{
 		Revenue revenue = revenueRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Receita não encontrada"));
 		

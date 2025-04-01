@@ -5,12 +5,17 @@ async function saveNewRevenue() {
 	const date = document.getElementById('newDate').value;
 	const csrfToken = document.getElementById('csrfToken').value;
 
+	if(!validNewRevenueInput()){
+		alert('Preencha todos os campos');
+		return;
+	}
+	
 	const data = {
 		description: description,
 		value: value,
 		date: date
 	}
-	
+
 	console.log(data);
 
 	try {
@@ -30,7 +35,7 @@ async function saveNewRevenue() {
 		const modal = bootstrap.Modal.getInstance(document.getElementById('newRevenue'));
 		modal.hide();
 		alert('Receita salva com sucesso!');
-		window.location.href= "/revenues";
+		window.location.href = "/revenues";
 	}
 	catch (error) {
 		console.error('Erro:', error);
@@ -51,11 +56,11 @@ async function openEditRevenueModal(button) {
 
 	const response = await request.json();
 	console.log(response);
-	
+
 	const date = response.date;
 	const description = response.description;
 	const value = response.value;
-	
+
 	const formattedDate = new Date(date).toISOString().split('T')[0];
 
 	const editDateInput = document.getElementById('editDate');
@@ -85,13 +90,13 @@ async function openDeleteRevenueModal(button) {
 	}
 
 	const response = await request.json();
-	
+
 	const date = response.date;
 	const description = response.description;
 	const value = response.value;
-	
+
 	const formattedDate = new Date(date).toISOString().split('T')[0];
-	
+
 	const deleteDateInput = document.getElementById('deleteDate');
 	const deleteDescriptionInput = document.getElementById('deleteDescription');
 	const deleteValue = document.getElementById('deleteValue');
@@ -117,13 +122,17 @@ async function saveRevenueUpdates(button) {
 	const date = document.getElementById('editDate').value;
 	const csrfToken = document.getElementById('csrfToken').value;
 
+	if(!validUpdateRevenueInput()){
+			alert('Preencha todos os campos');
+			return;
+		}
 
 	const data = {
 		description: description,
 		value: value,
 		date: date
 	}
-	
+
 	console.log(data);
 
 	try {
@@ -143,7 +152,7 @@ async function saveRevenueUpdates(button) {
 		const modal = bootstrap.Modal.getInstance(document.getElementById('editRevenueModal'));
 		modal.hide();
 		alert('Receita atualizada com sucesso!');
-		window.location.href= "/revenues";
+		window.location.href = "/revenues";
 	}
 	catch (error) {
 		console.error('Erro:', error);
@@ -156,7 +165,7 @@ async function deleteRevenue(button) {
 	const revenueId = button.getAttribute('data-delete-revenue-id');
 	const url = `/revenues/delete/${revenueId}`;
 	const csrfToken = document.getElementById('csrfToken').value;
-	
+
 
 	try {
 		const request = await fetch(url, {
@@ -175,7 +184,7 @@ async function deleteRevenue(button) {
 		const modal = bootstrap.Modal.getInstance(document.getElementById('deleteRevenueModal'));
 		modal.hide();
 		alert('Receita deletada com sucesso!');
-		window.location.href= "/revenues";
+		window.location.href = "/revenues";
 	}
 	catch (error) {
 		console.error('Erro:', error);
@@ -185,8 +194,22 @@ async function deleteRevenue(button) {
 }
 
 
+function validNewRevenueInput() {
+	const description = document.getElementById('newDescription').value;
+	const value = document.getElementById('newValue').value;
+	const date = document.getElementById('newDate').value;
+
+	return description !== '' && value !== '' && date !== '';
+}
 
 
+function validUpdateRevenueInput() {
+	const description = document.getElementById('editDescription').value;
+	const value = document.getElementById('editValue').value;
+	const date = document.getElementById('editDate').value;
+
+	return description !== '' && value !== '' && date !== '';
+}
 
 
 
