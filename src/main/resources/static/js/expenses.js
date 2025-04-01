@@ -5,12 +5,17 @@ async function saveNewExpense() {
 	const date = document.getElementById('newDate').value;
 	const csrfToken = document.getElementById('csrfToken').value;
 
+	if(!validExpenseInputs()){
+		alert('preencha todos os campos');
+		return;
+	}
+	
 	const data = {
 		description: description,
 		value: value,
 		date: date
 	}
-	
+
 
 	try {
 		const request = await fetch(url, {
@@ -29,7 +34,7 @@ async function saveNewExpense() {
 		const modal = bootstrap.Modal.getInstance(document.getElementById('newExpense'));
 		modal.hide();
 		alert('Despesa salva com sucesso!');
-		window.location.href= "/expenses";
+		window.location.href = "/expenses";
 	}
 	catch (error) {
 		console.error('Erro:', error);
@@ -50,11 +55,11 @@ async function openEditExpenseModal(button) {
 
 	const response = await request.json();
 	console.log(response);
-	
+
 	const date = response.date;
 	const description = response.description;
 	const value = response.value;
-	
+
 	const formattedDate = new Date(date).toISOString().split('T')[0];
 
 	const editDateInput = document.getElementById('editDate');
@@ -84,13 +89,13 @@ async function openDeleteExpenseModal(button) {
 	}
 
 	const response = await request.json();
-	
+
 	const date = response.date;
 	const description = response.description;
 	const value = response.value;
-	
+
 	const formattedDate = new Date(date).toISOString().split('T')[0];
-	
+
 	const deleteDateInput = document.getElementById('deleteDate');
 	const deleteDescriptionInput = document.getElementById('deleteDescription');
 	const deleteValue = document.getElementById('deleteValue');
@@ -116,13 +121,17 @@ async function saveExpenseUpdates(button) {
 	const date = document.getElementById('editDate').value;
 	const csrfToken = document.getElementById('csrfToken').value;
 
+	if(!validUpdateExpenseInputs()){
+			alert('preencha todos os campos');
+			return;
+		}
 
 	const data = {
 		description: description,
 		value: value,
 		date: date
 	}
-	
+
 	console.log(data);
 
 	try {
@@ -142,7 +151,7 @@ async function saveExpenseUpdates(button) {
 		const modal = bootstrap.Modal.getInstance(document.getElementById('editExpenseModal'));
 		modal.hide();
 		alert('Despesa atualizada com sucesso!');
-		window.location.href= "/expenses";
+		window.location.href = "/expenses";
 	}
 	catch (error) {
 		console.error('Erro:', error);
@@ -155,7 +164,7 @@ async function deleteExpense(button) {
 	const expenseId = button.getAttribute('data-delete-expense-id');
 	const url = `/expenses/delete/${expenseId}`;
 	const csrfToken = document.getElementById('csrfToken').value;
-	
+
 
 	try {
 		const request = await fetch(url, {
@@ -174,7 +183,7 @@ async function deleteExpense(button) {
 		const modal = bootstrap.Modal.getInstance(document.getElementById('deleteExpenseModal'));
 		modal.hide();
 		alert('Despesa deletada com sucesso!');
-		window.location.href= "/expenses";
+		window.location.href = "/expenses";
 	}
 	catch (error) {
 		console.error('Erro:', error);
@@ -183,9 +192,21 @@ async function deleteExpense(button) {
 
 }
 
+function validExpenseInputs() {
+	const description = document.getElementById('newDescription').value;
+	const value = document.getElementById('newValue').value;
+	const date = document.getElementById('newDate').value;
 
+	return description !== '' && value !== '' && date !== ''; 
+}
 
+function validUpdateExpenseInputs() {
+	const description = document.getElementById('editDescription').value;
+	const value = document.getElementById('editValue').value;
+	const date = document.getElementById('editDate').value;
 
+	return description !== '' && value !== '' && date !== ''; 
+}
 
 
 
