@@ -1,6 +1,6 @@
 package matheusresio.controle_de_gastos.model.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,5 +15,5 @@ public class RevenueDto {
 
 	private String description;
 	private String value;
-	private Date date;
+	private LocalDate date;
 }

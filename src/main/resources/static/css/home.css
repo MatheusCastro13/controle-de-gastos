@@ -93,3 +93,21 @@
 	margin: 0 auto;
 	padding: 5px 15px 0;
 }
+
+.period-select {
+	display: flex;
+	flex-direction: row;
+	gap: 30px;
+}
+
+#byDateRange, #byMonthYear {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+#byMonthYear {
+	align-items: center;
+}

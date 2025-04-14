@@ -1,7 +1,7 @@
 package matheusresio.controle_de_gastos.model;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,7 +36,7 @@ public class Expense {
 	@Column(nullable = false, length = 255)
 	private BigDecimal expenseValue;
 	
-	private Date expenseDate;
+	private LocalDate expenseDate;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")

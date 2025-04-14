@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import matheusresio.controle_de_gastos.model.dto.LoginRequest;
+import matheusresio.controle_de_gastos.model.dto.Transaction;
 
 @Entity
 @Table(name = "users")
@@ -62,6 +63,9 @@ public class User {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Expense> expenses = new ArrayList<>();
 	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	private List<Transaction> transactions = new ArrayList<>();
+	
 	public boolean isLoginCorrect(LoginRequest loginRequest, PasswordEncoder passwordEncoder) {
 		return passwordEncoder.matches(loginRequest.password(), this.password);
 	}
@@ -96,6 +100,23 @@ public class User {
 		if(expenses.remove(expense)) {
 			if(expense.getUser() == this) {
 				expense.setUser(null);
+			}
+		}
+	}
+	
+	public void addTransaction(Transaction transaction) {
+		if(transaction != null && !transactions.contains(transaction)) {
+			transactions.add(transaction);
+			if(transaction.getUser() != this) {
+				transaction.setUser(this);
+			}
+		}
+	}
+
+	public void removeTransaction(Transaction transaction) {
+		if(transactions.remove(transaction)) {
+			if(transaction.getUser() == this) {
+				transaction.setUser(null);
 			}
 		}
 	}

@@ -1,21 +1,24 @@
 package matheusresio.controle_de_gastos.model.dto;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class CashFlow {
 
-	private List<Transaction> transactions = new ArrayList<>();
+	@ToString.Exclude
+	private Page<Transaction> transactions;
 	private BigDecimal totalRevenue;
 	private BigDecimal totalExpense;
 	private BigDecimal result;
@@ -23,6 +26,4 @@ public class CashFlow {
 	private BigDecimal biggestExpense;
 	private BigDecimal averageRevenue;
 	private BigDecimal averageExpense;
-	
-	
 }

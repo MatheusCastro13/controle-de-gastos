@@ -2,87 +2,90 @@ package matheusresio.controle_de_gastos.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.time.LocalDate;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import matheusresio.controle_de_gastos.model.Expense;
-import matheusresio.controle_de_gastos.model.Revenue;
 import matheusresio.controle_de_gastos.model.User;
 import matheusresio.controle_de_gastos.model.dto.CashFlow;
 import matheusresio.controle_de_gastos.model.dto.Transaction;
 import matheusresio.controle_de_gastos.model.enums.TransactionType;
+import matheusresio.controle_de_gastos.repository.TransactionRepository;
+import matheusresio.controle_de_gastos.repository.specifications.TransactionSpecifications;
 
 @Service
 public class CashFlowService {
-
-	public CashFlow userCashFlow(User user) {
-		return generateCashFlow(user.getRevenues(), user.getExpenses());
+	
+	private final TransactionRepository transactionRepository;
+	
+	@Autowired
+	public CashFlowService(TransactionRepository transactionRepository) {
+		this.transactionRepository = transactionRepository;
 	}
 	
-	private CashFlow generateCashFlow(List<Revenue> revenues, List<Expense> expenses) {
-		List<Transaction> transactions = generateTransactions(revenues, expenses);
-		CashFlow cashFlow = setCashFlowIndicators(transactions);
-		
-		return cashFlow;
-	}
+	public CashFlow userCashFlow(User user, Integer page, Integer size, 
+			DateRangeFilter dateRangeFilter, MonthYearFilter monthYearFiler) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("date")));
 
-	private List<Transaction> generateTransactions(List<Revenue> revenues, List<Expense> expenses) {
-		List<Transaction> transactions = new ArrayList<>();
-		
-		transactions.addAll(revenues.stream().map(rev -> 
-								new Transaction(TransactionType.REVENUE,
-										rev.getRevenueValue(),
-										rev.getDescription(),
-										rev.getId(),
-										rev.getRevenueDate())).toList());
-		
-		transactions.addAll(expenses.stream().map(exp -> 
-								new Transaction(TransactionType.EXPENSE,
-										exp.getExpenseValue().multiply(new BigDecimal("-1")),
-										exp.getDescription(),
-										exp.getId(),
-										exp.getExpenseDate())).toList());
-		
-		transactions.sort(Comparator
-			    .comparing(Transaction::getDate, Comparator.reverseOrder())
-			    .thenComparing(Transaction::getTransactionId)
-			    .thenComparing(t -> t.getTransactionType() == TransactionType.REVENUE ? -1 : 1)
-			);
-		
-		return transactions;
+	    Specification<Transaction> spec = TransactionSpecifications.belongsTo(user);
+
+	    if (dateRangeFilter != null) {
+	        spec = spec.and(TransactionSpecifications.byDateRange(dateRangeFilter.getStartDate(), dateRangeFilter.getEndDate()));
+	        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
+		    return setCashFlowIndicators(transactions);
+	    } else if (monthYearFiler != null) {
+	        spec = spec.and(TransactionSpecifications.byMonthAndYear(monthYearFiler.getMonth(), monthYearFiler.getYear()));
+	        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
+		    transactions.forEach(System.out::println);
+		    return setCashFlowIndicators(transactions);
+	    } else {
+	        LocalDate now = LocalDate.now();
+	        spec = spec.and(TransactionSpecifications.byMonthAndYear(now.getMonthValue(), now.getYear()));
+	        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
+		    return setCashFlowIndicators(transactions);
+	    }
+
 	}
 	
-	private CashFlow setCashFlowIndicators(List<Transaction> transactions) {
+	private CashFlow setCashFlowIndicators(Page<Transaction> transactions) {
 		BigDecimal totalRevenue = totalTransactionValue(transactions, TransactionType.REVENUE);
 		BigDecimal totalExpense = totalTransactionValue(transactions, TransactionType.EXPENSE);
-		BigDecimal result = totalRevenue.add(totalExpense);
+		BigDecimal result = totalRevenue.subtract(totalExpense);
 		BigDecimal biggestRevenue = biggestOf(transactions, TransactionType.REVENUE);
 		BigDecimal biggestExpense = biggestOf(transactions, TransactionType.EXPENSE);
 		BigDecimal averageRevenue = averageOf(transactions, TransactionType.REVENUE);
 		BigDecimal averageExpense = averageOf(transactions, TransactionType.EXPENSE);
 		
-		return new CashFlow(transactions, 
-							totalRevenue, 
-							totalExpense, 
-							result, 
-							biggestRevenue, 
-							biggestExpense, 
-							averageRevenue, 
-							averageExpense);
+		
+		CashFlow cashFlow = new CashFlow(transactions, 
+				totalRevenue, 
+				totalExpense, 
+				result, 
+				biggestRevenue, 
+				biggestExpense, 
+				averageRevenue, 
+				averageExpense);
+		
+		System.out.println("FluxoService: " + cashFlow);
+		
+		return cashFlow;
 		
 	}
 	
-	private BigDecimal totalTransactionValue(List<Transaction> transactions, TransactionType criteria) {
+	private BigDecimal totalTransactionValue(Page<Transaction> transactions, TransactionType criteria) {
 		return transactions.stream()
 				.filter(t -> t.getTransactionType().equals(criteria))
 				.map(Transaction::getValue)
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 	
-	private BigDecimal biggestOf(List<Transaction> transactions, TransactionType criteria) {
+	private BigDecimal biggestOf(Page<Transaction> transactions, TransactionType criteria) {
 	    return transactions.stream()
 	            .filter(t -> t.getTransactionType().equals(criteria))
 	            .map(Transaction::getValue)
@@ -91,7 +94,7 @@ public class CashFlowService {
 	}
 
 	
-	private BigDecimal averageOf(List<Transaction> transactions, TransactionType criteria) {
+	private BigDecimal averageOf(Page<Transaction> transactions, TransactionType criteria) {
 		int size = transactions.stream()
 				.filter(t -> t.getTransactionType().equals(criteria))
 				.toList()

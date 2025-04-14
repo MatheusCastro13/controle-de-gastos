@@ -1,4 +1,4 @@
-package matheusresio.controle_de_gastos.model.dto;
+package matheusresio.controle_de_gastos.service;
 
 import java.time.LocalDate;
 
@@ -6,14 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Setter
-public class ExpenseDto {
+@Getter
+@ToString
+public class DateRangeFilter{
 
-	private String description;
-	private String value;
-	private LocalDate date;
+	private LocalDate startDate;
+	private LocalDate endDate;
+	
 }
